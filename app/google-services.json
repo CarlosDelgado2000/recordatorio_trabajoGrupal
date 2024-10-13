@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1074098193134",
+    "project_id": "recordtapp",
+    "storage_bucket": "recordtapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1074098193134:android:240c624ad10c4d3bd829ff",
+        "android_client_info": {
+          "package_name": "com.example.recordatorio"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlpYb-5dnHE3k0Vf5ZDBBMtrB7Hz-sDpU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
