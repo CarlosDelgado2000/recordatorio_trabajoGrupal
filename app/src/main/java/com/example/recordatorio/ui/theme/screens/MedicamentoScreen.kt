@@ -16,7 +16,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.res.painterResource
 import com.example.recordatorio.R
 import com.example.recordatorio.models.Medicamento
-import com.example.recordatorio.repository.MedicamentoRepository
 import com.example.recordatorio.services.MedicamentoService
 
 @Composable
@@ -27,11 +26,20 @@ fun MedicamentoScreen(
     onAddMedicamentoClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
-    val repository = MedicamentoRepository()
-    val service = MedicamentoService(repository)
+    // Inicializa el servicio de medicamentos
+    val service = remember { MedicamentoService() } // Se asume que el servicio maneja la conexión a Firebase
 
     var searchQuery by remember { mutableStateOf("") }
     var filteredMedicamentos by remember { mutableStateOf(medicamentos) }
+
+    // Filtra medicamentos al buscar
+    LaunchedEffect(searchQuery) {
+        filteredMedicamentos = if (searchQuery.isBlank()) {
+            medicamentos
+        } else {
+            service.searchMedicamentos(searchQuery) // Asume que el método busca en Firebase
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -39,6 +47,7 @@ fun MedicamentoScreen(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        // Encabezado con imagen y botón de cerrar sesión
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -59,12 +68,10 @@ fun MedicamentoScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Campo de búsqueda
         OutlinedTextField(
             value = searchQuery,
-            onValueChange = { newValue ->
-                searchQuery = newValue
-                filteredMedicamentos = service.searchMedicamentos(searchQuery)
-            },
+            onValueChange = { newValue -> searchQuery = newValue },
             label = { Text("Buscar medicamento") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -82,6 +89,7 @@ fun MedicamentoScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        // Mensaje motivacional
         Text(
             text = "Recuerda, cada pastilla es un paso hacia una vida más saludable.\n¡No olvides tu medicamento hoy!",
             color = Color.Black,
@@ -92,6 +100,7 @@ fun MedicamentoScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Instrucciones para agregar medicamento
         Text(
             text = "Para agregar un nuevo medicamento, presiona el botón 'Agregar Medicamento' y completa los detalles requeridos.",
             color = Color.Black,
@@ -102,6 +111,7 @@ fun MedicamentoScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        // Botones de navegación
         Button(
             onClick = onViewAgendaClick,
             colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
@@ -132,6 +142,7 @@ fun MedicamentoScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        // Lista de medicamentos filtrados
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(filteredMedicamentos) { medicamento ->
                 Text(
@@ -147,6 +158,7 @@ fun MedicamentoScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
+        // Imagen final
         Image(
             painter = painterResource(id = R.drawable.img_2),
             contentDescription = null,
@@ -155,6 +167,7 @@ fun MedicamentoScreen(
     }
 }
 
+// Función de búsqueda de medicamentos
 private fun buscarMedicamento(query: String) {
     if (query.isNotBlank()) {
         println("Buscando medicamento: $query")

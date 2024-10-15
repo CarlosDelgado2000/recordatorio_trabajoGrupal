@@ -1,5 +1,7 @@
 package com.example.recordatorio
 
+import com.google.firebase.ktx.initialize
+import com.google.firebase.ktx.Firebase
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -10,16 +12,18 @@ import com.example.recordatorio.repository.UserRepository
 import com.example.recordatorio.services.RecuperarCuentaService
 import com.example.recordatorio.services.RegistroService
 import com.example.recordatorio.services.UserService
+import com.example.recordatorio.services.MedicamentoService // Importar el servicio de medicamentos
 import com.example.recordatorio.ui.theme.RecordatorioTheme
 import com.example.recordatorio.ui.theme.screens.*
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.initialize
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private lateinit var userService: UserService
     private lateinit var recuperarCuentaService: RecuperarCuentaService
     private lateinit var registroService: RegistroService
+    private lateinit var medicamentoService: MedicamentoService // Agregar el servicio de medicamentos
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,9 +36,10 @@ class MainActivity : ComponentActivity() {
         userService = UserService(userRepository)
         registroService = RegistroService(userRepository)
         recuperarCuentaService = RecuperarCuentaService(userRepository)
+        medicamentoService = MedicamentoService() // Inicializar el servicio de medicamentos
 
         setContent {
-            var isDarkTheme by remember { mutableStateOf(false) } // Estado para el tema oscuro
+            var isDarkTheme by remember { mutableStateOf(false) }
             RecordatorioTheme(isDarkTheme = isDarkTheme, onThemeChange = { isDarkTheme = it }) {
                 var currentScreen by remember { mutableStateOf<Screen>(Screen.Portada) }
                 val medicamentos = remember { mutableStateListOf<Medicamento>() }
@@ -74,35 +79,31 @@ class MainActivity : ComponentActivity() {
                     is Screen.Medicamento -> MedicamentoScreen(
                         medicamentos = medicamentos,
                         onViewAgendaClick = { currentScreen = Screen.VerAgenda },
-                        onLogoutClick = { // Aquí se maneja el cierre de sesión
+                        onLogoutClick = {
                             Firebase.auth.signOut()
-                            currentScreen = Screen.Portada // Cerrar sesión
+                            currentScreen = Screen.Portada
                         },
                         onAddMedicamentoClick = { currentScreen = Screen.AgregarMedicamento },
                         onSettingsClick = { currentScreen = Screen.Configuracion }
                     )
                     is Screen.VerAgenda -> VerAgendaScreen(
-                        medicamentos = medicamentos,
+                        medicamentoService = medicamentoService, // Pasar el servicio
                         onBackClick = { currentScreen = Screen.Medicamento }
                     )
                     is Screen.AgregarMedicamento -> AgregarMedicamentoScreen(
-                        onRegisterClick = { nombreMedicamento, dosis, horario ->
-                            medicamentos.add(Medicamento(nombreMedicamento, dosis, horario, "08:00 AM"))
-                            Toast.makeText(this, "Medicamento '$nombreMedicamento' registrado.", Toast.LENGTH_LONG).show()
-                            currentScreen = Screen.Medicamento
-                        },
-                        onBackClick = { currentScreen = Screen.Medicamento }
+                        medicamentoService = medicamentoService, // Pasar el servicio
+                        onBackClick = { currentScreen = Screen.Medicamento } // Llamar al callback para volver a la pantalla de medicamentos
                     )
                     is Screen.Configuracion -> ConfiguracionScreen(
-                        isDarkTheme = isDarkTheme, // Pasamos el estado del tema oscuro
-                        onThemeChange = { isDarkTheme = it }, // Función para cambiar el tema
+                        isDarkTheme = isDarkTheme,
+                        onThemeChange = { isDarkTheme = it },
                         onBackClick = { currentScreen = Screen.Medicamento },
-                        onLogoutClick = { // Manejo del cierre de sesión
+                        onLogoutClick = {
                             Firebase.auth.signOut()
-                            currentScreen = Screen.Portada // Cerrar sesión
+                            currentScreen = Screen.Portada
                         }
                     )
-                    else -> {} // Manejo del caso no esperado
+                    else -> {}
                 }
             }
         }

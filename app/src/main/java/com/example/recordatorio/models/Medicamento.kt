@@ -1,8 +1,12 @@
+// models/Medicamento.kt
 package com.example.recordatorio.models
 
 data class Medicamento(
-    val id: String, // Agregar el ID aquí
-    val nombre: String,
-    val dosis: String,
-    val horario: String // Agregar el horario aquí
+    val id: String = "",
+    val nombre: String = "",
+    val dosis: String = "",
+    val frecuencia: String = "",
+    val unidad: String = "",
+    val viaAdministracion: String = "",
+    val horario: String = ""
 )

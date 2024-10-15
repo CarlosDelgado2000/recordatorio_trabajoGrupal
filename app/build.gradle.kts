@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+
 }
 
 // Reemplaza con tu namespace y configuraciones adecuadas
@@ -55,9 +56,10 @@ android {
 }
 
 dependencies {
-    implementation(platform("com.google.firebase:firebase-bom:32.0.0"))
+    implementation(platform("com.google.firebase:firebase-bom:32.2.1")) // Versión más reciente
     implementation("com.google.firebase:firebase-auth-ktx") // Sin versión, tomará la versión del BOM
     implementation("com.google.firebase:firebase-firestore-ktx") // Sin versión, tomará la versión del BOM
+    implementation("com.google.firebase:firebase-database-ktx") // Sin versión, tomará la versión del BOM
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -71,6 +73,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(kotlin("script-runtime"))
 }
 
 
